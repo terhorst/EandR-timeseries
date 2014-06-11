@@ -1,0 +1,6 @@
+*.swp
+bin
+*.o
+*.so
+pyexp.cpp
+pyexp.html
