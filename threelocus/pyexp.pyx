@@ -57,13 +57,17 @@ def covXY_neutral(double[:] pi, double r, double N, int tx, int ty):
     "Compute cov(X_(tx), Y_(ty)) under neutrality."
     # X = z1_tx + z2_tx
     # Y = z1_ty + z3_ty
-    return covZiZj(pi, r, N, tx, 1, ty, 1) + covZiZj(pi, r, N, tx, 2, ty, 1) + \
-            covZiZj(pi, r, N, tx, 1, ty, 3) + covZiZj(pi, r, N, tx, 2, ty, 3)
+    # Neutral equations were derived for a haploid model, so multiply
+    # pop. size by 2
+    return covZiZj(pi, r, 2 * N, tx, 1, ty, 1) + covZiZj(pi, r, 2 * N, tx, 2, ty, 1) + \
+            covZiZj(pi, r, 2 * N, tx, 1, ty, 3) + covZiZj(pi, r, 2 * N, tx, 2, ty, 3)
 
 def covXX_neutral(double[:] pi, double r, double N, int tx1, int tx2):
     "Compute cov(X_(tx1), X_(tx2)) under neutrality."
-    return covZiZj(pi, r, N, tx1, 1, tx2, 1) + covZiZj(pi, r, N, tx1, 2, tx2, 1) + \
-            covZiZj(pi, r, N, tx1, 2, tx2, 1) + covZiZj(pi, r, N, tx1, 2, tx2, 2)
+    # Neutral equations were derived for a haploid model, so multiply
+    # pop. size by 2
+    return covZiZj(pi, r, 2 * N, tx1, 1, tx2, 1) + covZiZj(pi, r, 2 * N, tx1, 2, tx2, 1) + \
+            covZiZj(pi, r, 2 * N, tx1, 2, tx2, 1) + covZiZj(pi, r, 2 * N, tx1, 2, tx2, 2)
 
 # @cython.boundscheck(False)
 # @cython.cdivision(True)
