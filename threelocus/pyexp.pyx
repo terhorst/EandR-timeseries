@@ -6,6 +6,7 @@
 from __future__ import division
 cimport numpy as np
 cimport cython
+import math
 
 initHashMap()
 
@@ -110,6 +111,94 @@ def mean_cov_neutral(
                         c = covXX_neutral(pi, rr, N, t1, t2)
                     else:
                         c = covXY_neutral(pi, rr, N, t1, t2)
+                    C[i_t1, i_ell1, i_t2, i_ell2] = \
+                            C[i_t2, i_ell2, i_t1, i_ell1] = c
+
+def mean_cov_approx(
+        double[:, :] M, 
+        double[:, :, :, :] C, 
+        int[:] positions,
+        int i_sel,
+        double[:, :, :] hap_freqs,
+        int[:] times, 
+        int n,
+        double r,
+        double h,
+        double s,
+        bint skip_selected_site,
+        double alpha,
+        double beta,
+        bint debug):
+    '''Calculate mean and covariance with selection.
+
+    Parameters:
+    M -- Matrix of expected values (T x L)
+    C -- Matrix of covariances (T x L x T x L)
+    positions -- Vector of site positions, used for recombination 
+                 distance calculation (L)
+    i_sel -- Index of selected site.
+    hap_freqs -- Matrix of haplotype frequencies for each pair of
+                 sites + selected site (L x L x 7)
+    times -- Vector of times for each data point (T)
+    N -- Effective population size.
+    r -- Recombination rate (/ base-pair / generation).
+    h -- Dominance coefficient.
+    s -- Selection coefficient.
+    skip_selected_site -- Do not calculate selected site.
+    '''
+    cdef int T = M.shape[0]
+    cdef int L = M.shape[1]
+    cdef Params p
+    cdef double c, ex
+    cdef int i_t1, i_t2, i_ell1, i_ell2, t1, t2
+    cdef double pL, pR, pLR, corr
+
+    p.n = n
+    p.h = h
+    p.s = s
+    for i_ell1 in range(L):
+        for i_ell2 in range(i_ell1, L):
+            p.init.zL = hap_freqs[i_ell1, i_ell2, 0]
+            p.init.zS = hap_freqs[i_ell1, i_ell2, 1]
+            p.init.zR = hap_freqs[i_ell1, i_ell2, 2]
+            p.init.zLS = hap_freqs[i_ell1, i_ell2, 3]
+            p.init.zLR = hap_freqs[i_ell1, i_ell2, 4]
+            p.init.zRS = hap_freqs[i_ell1, i_ell2, 5]
+            p.init.zLRS = hap_freqs[i_ell1, i_ell2, 6]
+            pL = p.init.zL + p.init.zLS + p.init.zLR + p.init.zLRS
+            pR = p.init.zR + p.init.zRS + p.init.zLR + p.init.zLRS
+            pLR = p.init.zLR + p.init.zLRS
+            corr = (pLR - pL * pR) / math.sqrt(pL * (1. - pL) * pR * (1. - pR))
+            p.rLS = min(abs(positions[i_ell1] - positions[i_sel]) * r, 0.5)
+            p.rLR = min(abs(positions[i_ell1] - positions[i_ell2]) * r, 0.5)
+            p.rRS = min(abs(positions[i_ell2] - positions[i_sel]) * r, 0.5)
+            if i_ell1 <= i_ell2 <= i_sel:
+                # LRS
+                p.rLS_R = 0.0
+                p.rLR_S = p.rRS
+                p.rRS_L = p.rLR
+            elif i_ell1 <= i_sel <= i_ell2:
+                # LSR
+                p.rLR_S = 0.0
+                p.rLS_R = p.rRS
+                p.rRS_L = p.rLS
+            else:
+                # SLR
+                p.rRS_L = 0.0
+                p.rLS_R = p.rLR
+                p.rLR_S = p.rLS
+
+            for i_t1 in range(T):
+                t1 = times[i_t1]
+                if i_ell1 == i_sel:
+                    M[i_t1, i_ell1] = ES(p, t1)
+                else:
+                    M[i_t1, i_ell1] = EL(p, t1)
+                for i_t2 in range(T):
+                    t2 = times[i_t2]
+                    c = corr * math.exp(-alpha * p.rLR) * math.exp(-beta * abs(t1 - t2))
+                    if debug:
+                        print(i_t1, i_ell1, i_t2, i_ell2)
                     C[i_t1, i_ell1, i_t2, i_ell2] = \
                             C[i_t2, i_ell2, i_t1, i_ell1] = c
 

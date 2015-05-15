@@ -1,0 +1,18 @@
+== Compilation Instructions == 
+This library contains code which implements the recursions described
+in Terhorst, Schlötter & Song (2015). A C++11-compliant compiler
+(such as GCC 4.8 or higher) is required to build this library.
+Additionally, the code depends on the google-sparsehash library
+(https://code.google.com/p/sparsehash/). To build the library:
+
+  $ make libcexp.so
+  $ make python
+
+The resulting Python shared object file pyexp.so can then be called
+using the interface described in pyexp.pyx.
+
+The mathematical equations represented by the files in in include/
+are obtained using the Maple script `scripts/3l.mpl'. The script
+`scripts/run.py' will generate a shell file which can be used to
+re-create these files. The files have been generated for you, so under
+normal circumstances you should not need to run this.

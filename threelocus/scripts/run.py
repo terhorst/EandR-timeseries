@@ -10,4 +10,4 @@ with open("run.sh", "w") as f:
         args = {('ARG%i' % i): j for i, j in enumerate(ip)}
         args['ORDER'] = order
         args = " ".join("-D '%s=%i'" % aa for aa in args.items())
-        f.write("bsub ~/maple17/bin/maple %s ../3l.mpl\n" % args)
+        f.write("~/maple17/bin/maple %s ../3l.mpl\n" % args)
