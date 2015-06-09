@@ -1,8 +1,3 @@
-# distutils: language = c++
-# distutils: libraries = cexp
-# distutils: extra_compile_args = -std=c++11 -Wno-unused-function
-# distutils: extra_link_args = -L.
-
 from __future__ import division
 cimport numpy as np
 cimport cython

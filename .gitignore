@@ -5,3 +5,5 @@ __pycache__
 threelocus/*.so
 threelocus/build
 threelocus/*.o
+build/
+pyexp.so

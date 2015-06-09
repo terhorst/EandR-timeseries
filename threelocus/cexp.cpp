@@ -150,3 +150,53 @@ void printCacheStats() {
     std::cout << "Cache hits: " << cacheHits << "\tmisses :" << cacheMisses 
         << "\t hit rate: " << (double)cacheHits / (cacheHits + cacheMisses) << std::endl;
 }
+
+// Helper functions to expose to Cython
+namespace helpers {
+    double varL(const Params &p, int t) {
+        return cov(p, t, Marginal::L, t, Marginal::L);
+    }
+
+    double varS(const Params &p, int t) {
+        return cov(p, t, Marginal::S, t, Marginal::S);
+    }
+
+    double varR(const Params &p, int t) {
+        return cov(p, t, Marginal::R, t, Marginal::R);
+    }
+
+    double covLL(const Params &p, int t1, int t2) {
+        return cov(p, t1, Marginal::L, t2, Marginal::L);
+    }
+
+    double covSS(const Params &p, int t1, int t2) {
+        return cov(p, t1, Marginal::S, t2, Marginal::S);
+    }
+
+    double covRR(const Params &p, int t1, int t2) {
+        return cov(p, t1, Marginal::R, t2, Marginal::R);
+    }
+
+    double covLR(const Params &p, int tL, int tR) {
+        return cov(p, tL, Marginal::L, tR, Marginal::R);
+    }
+
+    double covLS(const Params &p, int tL, int tS) {
+        return cov(p, tL, Marginal::L, tS, Marginal::S);
+    }
+
+    double covRS(const Params &p, int tR, int tS) {
+        return cov(p, tR, Marginal::R, tS, Marginal::S);
+    }
+
+    double EL(const Params &p, int t) {
+        return E(p, t, Marginal::L);
+    }
+
+    double ES(const Params &p, int t) {
+        return E(p, t, Marginal::S);
+    }
+    double ER(const Params &p, int t) {
+        return E(p, t, Marginal::R);
+    }
+}
