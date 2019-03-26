@@ -183,7 +183,7 @@ class Likelihood:
             h: Dominance paremeter.
             s: Fitness parameter.
         '''
-        if self.reset or psutil.phymem_usage().percent > 90.0:
+        if self.reset or psutil.virtual_memory().percent > 90.0:
             pyexp.reset()
         # Update mean and covariance matrices in place. Returns None.
         for i in range(self.n_replicates):
